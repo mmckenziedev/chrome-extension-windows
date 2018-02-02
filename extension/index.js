@@ -2,10 +2,22 @@
   const ACTIONS = {
     CREATE: "CREATE",
     REMOVE: "REMOVE",
-    UPDATE: "UPDATE"
+    UPDATE: "UPDATE",
+    TABCREATE: "TABCREATE",
+    TABREMOVE: "TABREMOVE",
+    TABUPDATE: "TABUPDATE"
   };
 
-  let windowId;
+  let windowId, tabId;
+
+  const tabOptions = {
+    active: true,
+    // index: 0,
+    // openerTabId
+    pinned: true,
+    url: "http://www.google.com"
+    // windowId: 0,
+  };
 
   const windowOptions = {
     focused: true,
@@ -25,22 +37,36 @@
       case ACTIONS.CREATE:
         createWindow(sendResponse);
         break;
+      case ACTIONS.REMOVE:
+        removeWindow(sendResponse);
+        break;
       case ACTIONS.UPDATE:
         updateWindow(sendResponse);
         break;
+      case ACTIONS.TABCREATE:
+        createTab(sendResponse);
+        break;
     }
+
+    return true;
   }
 
   function createWindow(sendResponse) {
-    new Promise(resolve => {
-      chromeWindows.create(windowOptions, window => {
-        console.info("createWindow", window.id);
-        console.log("window", window);
-        windowId = window.id;
-        resolve(window.id);
-      });
-    }).then(id => {
-      console.log("sendResponse", id);
+    chromeWindows.create(windowOptions, window => {
+      console.info("createWindow", window.id);
+      console.log("window", window);
+      console.log("alwaysOnTop", window.alwaysOnTop);
+      window.alwaysOnTop = true;
+      console.log("alwaysOnTop", window.alwaysOnTop);
+      windowId = window.id;
+      sendResponse(windowId);
+    });
+  }
+
+  function removeWindow(sendResponse) {
+    const id = windowId;
+    chromeWindows.remove(windowId, () => {
+      console.info("removeWindow");
       sendResponse(id);
     });
   }
@@ -53,7 +79,46 @@
         focused: true
       },
       window => {
-        console.info("updateWindow");
+        console.info("updateWindow", window.id);
+        sendResponse(window.id);
+      }
+    );
+  }
+
+  function createTab(sendResponse) {
+    chromeTabs.create(tabOptions, tab => {
+      console.info("createTab", tab.id);
+      console.log("window", tab);
+      tabId = tab.id;
+      windowId = tab.windowId;
+
+      setTimeout(() => {
+        updateWindow(() => {});
+        chromeTabs.highlight(
+          {
+            tabs: tab.index,
+            windowId: tab.windowId
+          },
+          window => {
+            console.info("highlight Tab", tabId);
+            console.log(window);
+          }
+        );
+      }, 5000);
+
+      sendResponse(tabId);
+    });
+  }
+
+  function updateTab(sendResponse) {
+    chromeTabs.update(
+      tabId,
+      {
+        active: true
+        // highlighted: true,
+      },
+      window => {
+        console.info("updateWindow", window.id);
         sendResponse(window.id);
       }
     );

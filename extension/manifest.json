@@ -21,6 +21,7 @@
   "permissions": [
     "activeTab",
     "notifications",
+    "nativeMessaging",
     "tabs"
   ]
 }

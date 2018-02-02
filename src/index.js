@@ -3,22 +3,32 @@ const EXTENSION_ID = "dpeojpbaididkeplbcbkchbaljcpbkob";
 const ACTIONS = {
   CREATE: "CREATE",
   REMOVE: "REMOVE",
-  UPDATE: "UPDATE"
+  UPDATE: "UPDATE",
+  TABCREATE: "TABCREATE",
+  TABREMOVE: "TABREMOVE",
+  TABUPDATE: "TABUPDATE"
 };
 
 const openPopupWindow = document.querySelector("#openPopupWindow");
 openPopupWindow.addEventListener("click", () => {
-  openWindow();
+  sendExtensionRequest(ACTIONS.CREATE);
+  // window.setTimeout(updateWindow, 5000);
 });
 
 const updatePopupWindow = document.querySelector("#updatePopupWindow");
 updatePopupWindow.addEventListener("click", () => {
-    updateWindow();
+  sendExtensionRequest(ACTIONS.UPDATE);
 });
 
 const removePopupWindow = document.querySelector("#removePopupWindow");
 removePopupWindow.addEventListener("click", () => {
-    removeWindow();
+  sendExtensionRequest(ACTIONS.REMOVE);
+});
+
+const openTab = document.querySelector("#openTab");
+openTab.addEventListener("click", () => {
+  sendExtensionRequest(ACTIONS.TABCREATE);
+  // window.setTimeout(updateWindow, 5000);
 });
 
 function sendExtensionRequest(request) {
@@ -29,16 +39,4 @@ function sendExtensionRequest(request) {
       console.error("sendMessage error", window.chrome.runtime.lastError);
     }
   });
-}
-
-function openWindow() {
-  sendExtensionRequest(ACTIONS.CREATE);
-}
-
-function updateWindow() {
-  sendExtensionRequest(ACTIONS.UPDATE);
-}
-
-function removeWindow() {
-  sendExtensionRequest(ACTIONS.REMOVE);
 }
