@@ -6,7 +6,8 @@
     NOTIFICATION_CREATE: "NOTIFICATION_CREATE",
     TABCREATE: "TABCREATE",
     TABREMOVE: "TABREMOVE",
-    TABUPDATE: "TABUPDATE"
+    TABUPDATE: "TABUPDATE",
+    GET_TAB: "GET_TAB"
   };
 
   let windowId, tabId;
@@ -52,6 +53,9 @@
         break;
       case ACTIONS.NOTIFICATION_CREATE:
         basicNotification(sendResponse);
+        break;
+      case ACTIONS.GET_TAB:
+        getCurrentTab(sendResponse);
         break;
     }
 
@@ -166,16 +170,32 @@
     );
   }
 
+  function getCurrentTab(sendResponse) {
+    tabs.query(
+      {
+        // active: true,
+        windowType: "normal",
+        // currentWindow: true
+      },
+      d => {
+        console.group("getCurrentTab");
+        console.log(d);
+        console.groupEnd();
+        sendResponse(d);
+      }
+    );
+  }
+
   runtime.onMessageExternal.addListener(onMessageExternal);
 
   chromeWindows.onCreated.addListener(window => {
-    console.info("onCreated", window.id);
+    console.info("chrome.windows.onCreated", window.id);
   });
   chromeWindows.onRemoved.addListener(id => {
-    console.info("onRemoved", id);
+    console.info("chrome.windows.onRemoved", id);
   });
   chromeWindows.onFocusChanged.addListener(id => {
-    console.info("onFocusChanged", id);
+    console.info("chrome.windows.onFocusChanged", id);
   });
 
   notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
@@ -183,5 +203,23 @@
     console.log("buttonIndex", buttonIndex);
     console.log("notificationId", notificationId);
     console.groupEnd();
+  });
+
+  tabs.onCreated.addListener(tab => {
+    console.info("chrome.tabs.onCreated", tab);
+  });
+
+  tabs.onUpdated.addListener((tabId, changeInfo) => {
+    console.info(
+      "chrome.tabs.onUpdated",
+      "tabId:",
+      tabId,
+      "changeInfo:",
+      changeInfo
+    );
+  });
+
+  tabs.onActivated.addListener(activeInfo => {
+    console.info("chrome.tabs.onActivated", "activeInfo:", activeInfo);
   });
 })(chrome.runtime, chrome.notifications, chrome.tabs, chrome.windows);

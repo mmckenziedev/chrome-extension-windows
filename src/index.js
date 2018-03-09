@@ -7,7 +7,8 @@ const ACTIONS = {
   NOTIFICATION_CREATE: "NOTIFICATION_CREATE",
   TABCREATE: "TABCREATE",
   TABREMOVE: "TABREMOVE",
-  TABUPDATE: "TABUPDATE"
+  TABUPDATE: "TABUPDATE",
+  GET_TAB: "GET_TAB"
 };
 
 const openPopupWindow = document.querySelector("#openPopupWindow");
@@ -42,6 +43,12 @@ updateTab.addEventListener("click", () => {
 const createNote = document.querySelector("#createNote");
 createNote.addEventListener("click", () => {
   sendExtensionRequest(ACTIONS.NOTIFICATION_CREATE);
+});
+
+const getTab = document.querySelector("#getTab");
+getTab.addEventListener("click", () => {
+  console.info("getTab");
+  sendExtensionRequest(ACTIONS.GET_TAB);
 });
 
 function sendExtensionRequest(request) {
