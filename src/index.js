@@ -8,7 +8,8 @@ const ACTIONS = {
   TABCREATE: "TABCREATE",
   TABREMOVE: "TABREMOVE",
   TABUPDATE: "TABUPDATE",
-  GET_TAB: "GET_TAB"
+  GET_TAB: "GET_TAB",
+  GET_ALL_NOTIFICATIONS: "GET_ALL_NOTIFICATIONS"
 };
 
 const openPopupWindow = document.querySelector("#openPopupWindow");
@@ -51,6 +52,12 @@ getTab.addEventListener("click", () => {
   sendExtensionRequest(ACTIONS.GET_TAB);
 });
 
+const getNote = document.querySelector("#getNote");
+getNote.addEventListener("click", () => {
+  console.info("getNote");
+  sendExtensionRequest(ACTIONS.GET_ALL_NOTIFICATIONS);
+});
+
 function sendExtensionRequest(request) {
   window.chrome.runtime.sendMessage(EXTENSION_ID, request, response => {
     console.log("sendMessage response", response);
@@ -60,3 +67,31 @@ function sendExtensionRequest(request) {
     }
   });
 }
+
+function connect() {
+  console.group("chrome.runtime.connect");
+  var port = chrome.runtime.connect('dpeojpbaididkeplbcbkchbaljcpbkob', {
+    name: "notifications"
+  });
+  console.log("port", port);
+
+  port.onMessage.addListener(function (msg) {
+    console.group("onMessage");
+    console.log("msg", msg);
+
+    console.groupEnd();
+  });
+
+  port.onDisconnect.addListener(function (port) {
+    console.group("onDisconnect");
+    console.log("port", port);
+    window.setTimeout(() => {
+      connect()
+    }, 1000)
+    console.groupEnd();
+  });
+
+  console.groupEnd();
+}
+
+connect();
